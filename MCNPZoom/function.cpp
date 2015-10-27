@@ -1815,7 +1815,7 @@ int geoZoomSingledir(McnpFillStruct& mcnpgeo999, int negative, int positive, cha
             {
                 Coordinate3D xyztmp;
                 xyztmp = convertSequenceToXYZ(i, mcnpgeo999);
-                if ((xyztmp.y + positive) <= mcnpgeo999.dimysup)
+                if ((xyztmp.y - positive) <= mcnpgeo999.dimysup)
                 {
                     int sequence = xyztmp.z * (mcnpgeo999.dimxsup - mcnpgeo999.dimxinf + 1) * (mcnpgeo999.dimysup + positive - mcnpgeo999.dimyinf + 1) + \
                         xyztmp.y * (mcnpgeo999.dimxsup - mcnpgeo999.dimxinf + 1) + xyztmp.x;
@@ -1823,7 +1823,9 @@ int geoZoomSingledir(McnpFillStruct& mcnpgeo999, int negative, int positive, cha
                 }
                 
             }
-            delete[]mcnpgeo999.element;
+			short int *mctmp = mcnpgeo999.element;
+			delete[]mctmp;
+            //delete[]mcnpgeo999.element;
             mcnpgeo999.element = elementtmp;
             elementtmp = 0; // point to NULL
             mcnpgeo999.dimysup = mcnpgeo999.dimysup + positive;
@@ -1883,7 +1885,7 @@ int geoZoomSingledir(McnpFillStruct& mcnpgeo999, int negative, int positive, cha
                 }
                 
             }
-            delete[]mcnpgeo999.element;
+            //delete[]mcnpgeo999.element;
             mcnpgeo999.element = elementtmp;
             elementtmp = 0; // point to NULL
             mcnpgeo999.dimzsup = mcnpgeo999.dimzsup + negative;
@@ -1929,8 +1931,8 @@ int geoZoomSingledir(McnpFillStruct& mcnpgeo999, int negative, int positive, cha
             {
                 Coordinate3D xyztmp;
                 xyztmp = convertSequenceToXYZ(i, mcnpgeo999);
-                xyztmp.z = xyztmp.z + positive;
-                if ((xyztmp.z + positive) <= mcnpgeo999.dimzsup)
+                xyztmp.z = xyztmp.z;
+                if ((xyztmp.z - positive) <= mcnpgeo999.dimzsup)
                 {
                     int sequence = xyztmp.z * (mcnpgeo999.dimxsup - mcnpgeo999.dimxinf + 1) * (mcnpgeo999.dimysup - mcnpgeo999.dimyinf + 1) + \
                         xyztmp.y * (mcnpgeo999.dimxsup - mcnpgeo999.dimxinf + 1) + xyztmp.x;

@@ -32,7 +32,7 @@ int main()
 
 	skinRepair(mcnpgeoA);
 
-	/*skinbox = calBox(mcnpgeoA, 125);
+	skinbox = calBox(mcnpgeoA, 125);
 	Xnegatiove = mcnpgeoA.dimxinf - (*skinbox).x;
 	Xpositive = -mcnpgeoA.dimxsup + (*(skinbox + 1)).x;
 	Ynegatiove = mcnpgeoA.dimyinf - (*skinbox).y;
@@ -40,7 +40,7 @@ int main()
 	Znegatiove = mcnpgeoA.dimzinf - (*skinbox).z;
 	Zpositive = -mcnpgeoA.dimzsup + (*(skinbox + 1)).z;
 	geoZoom(mcnpgeoA, Xnegatiove, Xpositive, Ynegatiove, Ypositive, Znegatiove, Zpositive);
-	geoZoom(mcnpgeoA, 3, 3, 3, 3, 3, 3);*/
+	geoZoom(mcnpgeoA, 3, 3, 3, 3, 3, 3);
 
     outputGeo(mcnpgeoA);
     fclose(mcnpfileA);
