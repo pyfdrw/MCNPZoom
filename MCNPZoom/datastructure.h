@@ -1,10 +1,10 @@
 #pragma once
 
+#include <stdio.h>
+#include <string.h>
 #include <iostream>
 #include <cstdio>
 #include <string>
-#include <string.h>
-#include <stdio.h>
 #include <cstdlib>
 #include <vector>
 
@@ -60,3 +60,10 @@ void genForms(char* inputpath, McnpFillStruct mcnpgeo999);
 int geoZoom(McnpFillStruct& mcnpgeo999, int Xnegative, int Xpositive, int Ynegatiove, int Ypositive, int Znegatiove, int Zpositive);
 // dir方向增加negatiove(靠近dir负方向一侧)和positive(靠近dir正方向一侧),dir可以取'X','Y','Z'
 int geoZoomSingledir(McnpFillStruct& mcnpgeo999, int negatiove, int positive, char dir);
+
+//计算对称轴，体模朝向Y正方向，计算X方向对称轴
+int calSymmetryAxisX(McnpFillStruct mcnpgeo999);
+//copy bulb left
+void bulbCopy(unsigned int bulbleft, unsigned int bulbright, McnpFillStruct mcnpgeo999);
+
+void skinRepair(McnpFillStruct& mcnpgeo999); //修复皮肤表面缺口

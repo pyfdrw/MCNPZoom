@@ -51,6 +51,7 @@ Point calGeoCenter(ObjGeo objgeo);
 float mixedProduct(Point A, Point B, Point C);
 
 
+
 //Functions for class "face"
 Face::Face()
 {

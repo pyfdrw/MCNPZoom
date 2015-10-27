@@ -1025,7 +1025,7 @@ void volAdjustAOrgan(int organid, float refvol, McnpFillStruct mcnpgeo999)
 void fileHandle(char** dirpath)
 {
     std::cout << "Input obj file path:" << std::endl;
-    gets(*dirpath);
+	std::cin.getline(*dirpath, 499);
 }
 
 int storeGeo(char* filepath, ObjGeo& objgeo)
@@ -1952,4 +1952,125 @@ int geoZoomSingledir(McnpFillStruct& mcnpgeo999, int negative, int positive, cha
     }
 
     return 0;
+}
+
+//计算对称轴，体模朝向Y正方向，计算X方向对称轴
+int calSymmetryAxisX(McnpFillStruct mcnpgeo999)
+{
+	// Use organ head skin (125)
+	int counttmp = 0;
+	int Xsum = 0;
+	Coordinate3D XYZtmp;
+	for (int i = 0; i < mcnpgeo999.voxelcount; i++)
+	{
+		if (125 == *(mcnpgeo999.element + i))
+		{
+			XYZtmp = convertSequenceToXYZ(i, mcnpgeo999);
+			if (XYZtmp.z > 460)
+			{
+				Xsum += XYZtmp.x;
+				counttmp++;
+			}
+		}
+	}
+
+	Xsum /= counttmp;
+
+	return Xsum;
+}
+
+//copy bulb left
+void bulbCopy(unsigned int bulbleft, unsigned int bulbright, McnpFillStruct mcnpgeo999)
+{
+	int symmetryaxisX = calSymmetryAxisX(mcnpgeo999);
+	int checksign = 0;
+
+	//Clean bulb right
+	for (int i = 0; i < mcnpgeo999.voxelcount; i++)
+	{
+		if (bulbright == *(mcnpgeo999.element + i))
+			*(mcnpgeo999.element + i) = 119;
+	}
+	std::cout << "organ " << bulbright << " clean" << std::endl;
+
+	int replacecount = 0;
+	Coordinate3D XYZtmp;
+	for (int i = 0; i < mcnpgeo999.voxelcount; i++)
+	{
+		if (bulbleft == *(mcnpgeo999.element + i))
+		{
+			XYZtmp = convertSequenceToXYZ(i, mcnpgeo999);
+			XYZtmp.x = 2 * symmetryaxisX - XYZtmp.x;
+			if (*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 119 ||
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 150 ||
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 106 ||
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 61  ||
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 27  ||
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 26  ||
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == 142)
+			{
+				*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) = bulbright;
+				replacecount++;
+			}
+			//else
+			//{
+			//	std::cout << ' ' << *(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) << ' ';
+			//}
+			if (*(mcnpgeo999.element + convertXYZToSequence(XYZtmp.x, XYZtmp.y, XYZtmp.z, mcnpgeo999)) == (bulbright - 1))
+			{
+				checksign++;
+			}
+		}
+	}
+
+	if (0 == checksign)
+	{
+		std::cout << "Maybe wrong position" << std::endl;
+	}
+	std::cout << replacecount << " were replaced" << std::endl;
+}
+
+void skinRepair(McnpFillStruct& mcnpgeo999)
+{
+	int counttmp = 0;
+	//逐行遍历
+	for (int i = mcnpgeo999.dimzinf; i <= mcnpgeo999.dimzsup; i++)
+	{
+		for (int j = mcnpgeo999.dimyinf; j <= mcnpgeo999.dimysup; j++)
+		{
+			int x_119_mintmp = 100000; //记录119号器官最先和最后出现的位置
+			int x_119_maxtmp = -100000;
+			for (int k = mcnpgeo999.dimxinf; k <= mcnpgeo999.dimxsup; k++) // 相同yz，不同x
+			{
+				int indextmp = convertXYZToSequence(k, j, i, mcnpgeo999);
+				if (119 == *(mcnpgeo999.element + indextmp))
+				{
+					x_119_maxtmp = x_119_maxtmp > k ? x_119_maxtmp : k;
+					x_119_mintmp = x_119_mintmp < k ? x_119_mintmp : k;
+				}
+			}
+			if (x_119_maxtmp > x_119_mintmp)
+			{
+				if (x_119_mintmp > mcnpgeo999.dimxinf && x_119_maxtmp < mcnpgeo999.dimxsup)
+				{
+					//int indextmpmin1 = convertXYZToSequence(x_119_mintmp, j, i, mcnpgeo999);
+					int indextmpmin2 = convertXYZToSequence(x_119_mintmp - 1, j, i, mcnpgeo999);
+					//int indextmpmax1 = convertXYZToSequence(x_119_maxtmp, j, i, mcnpgeo999);
+					int indextmpmax2 = convertXYZToSequence(x_119_maxtmp + 1, j, i, mcnpgeo999);
+					if (150 == *(mcnpgeo999.element + indextmpmin2))
+					{
+						*(mcnpgeo999.element + indextmpmin2) = 125;
+						counttmp++;
+					}
+					if (150 == *(mcnpgeo999.element + indextmpmax2))
+					{
+						*(mcnpgeo999.element + indextmpmax2) = 125;
+						counttmp++;
+					}
+				}
+			}
+		}
+	}
+
+	std::cout << "Finish skin repair " << counttmp << " Voxel replaces!" << std::endl;
 }
